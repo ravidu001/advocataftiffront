@@ -1,230 +1,99 @@
-import React from "react";
+import type { DetailContentMap, DetailVariant } from "./detailContent.types";
+import React, { useEffect, useState } from "react";
 
 import InsightsDisclaimerCard from "./InsightsDisclaimerCard";
 import KeyInsightsCard from "./KeyInsightsCard";
+import LoadingIcon from "./LoadingIcon";
 import SuggestedActionCard from "./SuggestedActionCard";
 import TitleCard from "./TitleCard";
-import type { DetailContentMap, DetailVariant } from "./detailContent.types";
-
-export const detailContentByVariant: DetailContentMap = {
-  composition: {
-    introParagraphs: [
-      "We've analyzed 26 years of consumption data (1998-2024) across all 12 categories. This comprehensive statistical report reveals significant patterns in household spending behavior and identifies key opportunities for deeper investigation.",
-    ],
-    growthSummary:
-      "The total private consumption expenditure has grown from Rs 8.2T in 1998 to Rs 24.7T in 2024, representing a compound annual growth rate (CAGR) of 4.3%.",
-    firstMetrics: [
-      "Food & Non-Alcoholic Beverages: CAGR of 5.8%, consistently stable with low volatility",
-      "Housing, Water & Electricity: CAGR of 4.2%, moderate volatility driven by construction cycles",
-      "Alcohol & Tobacco: CAGR of 12.3%, highest growth but highest volatility in the dataset",
-      "Health: CAGR of 8.9%, second-fastest growing sector with improving access",
-      "Education: CAGR of 7.6%, steady demand with low volatility",
-      "Recreation & Culture: CAGR of 3.2%, highest measured volatility in the full period",
-    ],
-    secondMetrics: [
-      "15% of data cells contain 'Data N/A' entries, concentrated in years 2002-2006.",
-      "Median growth rate across all categories: 4.7% (mean: 6.1%), indicating a positive skew driven by fast-growing discretionary sectors.",
-      "Correlation analysis shows a strong positive relationship between Health and Education spending (r=0.89).",
-      "Three categories show declining trends post-2020: Communication (-2.3%), Restaurants (-1.8%), and Furnishings (-0.4%).",
-    ],
-    recommendations: [
-      "Prioritize data completion for the 2002-2006 period to improve longitudinal accuracy.",
-      "Investigate Recreation & Culture volatility for potential measurement issues or genuine instability.",
-      "Cross-reference Health & Education correlation with demographic data to confirm the population-driven hypothesis.",
-    ],
-  },
-  trend: {
-    intro:
-      "Trend visualization across 26 years reveals distinct consumption patterns shaped by economic cycles, technological disruption, and societal shifts. Our analysis identifies three major inflection points that fundamentally altered spending behavior.",
-    disruptionParagraph:
-      "Three distinct events created lasting changes in consumption patterns: (1) The 2008 Global Financial Crisis, which suppressed discretionary spending for 3-4 years; (2) The 2016 Demonetization event, which temporarily disrupted all categories; (3) The 2020-2021 COVID-19 pandemic, which permanently reshaped Restaurants, Recreation, and Communication spending.",
-    longTermTrends: [
-      "Food & Beverages: Steady upward trajectory with minimal deviation (R^2=0.96), suggesting inelastic demand.",
-      "Housing: Step-function growth pattern with 3-5 year plateaus followed by sharp increases.",
-      "Health: Exponential growth curve accelerating post-2015, possibly driven by an aging population.",
-      "Communication: Peaked in 2015 at Rs 1.8T, declined to Rs 1.2T by 2024 due to price competition and saturation.",
-      "Restaurants & Hotels: Sharp V-shaped recovery post-2021, still 12% below the 2019 peak.",
-    ],
-    emergingPattern:
-      "Recent data shows bifurcation: essential categories (Food, Health, Education) maintaining or accelerating growth, while discretionary categories (Recreation, Furnishings, Alcohol) showing increased volatility and uncertain recovery trajectories.",
-    recommendations: [
-      "Use 2022-2024 data cautiously for forecasting - may not represent normalized conditions.",
-      "Model essential vs. discretionary categories separately to account for differing volatility profiles.",
-      "Monitor the Communication sector for stabilization - recent declines may be bottoming out.",
-    ],
-  },
-  ranking: {
-    intro:
-      "Performance ranking helps prioritize analysis and resource allocation. This stability-focused breakdown highlights the most resilient and volatile consumption categories.",
-    stabilityRanking: [
-      "Most Stable: Education (+/-1.4%), Food (+/-2.6%), Health (+/-9.7%)",
-      "Moderate: Housing (+/-11.8%), Clothing (+/-13.5%), Transport (+/-14.2%)",
-      "Highly Volatile: Recreation (+/-18.2%), Alcohol & Tobacco (+/-24.5%), Restaurants (+/-21.7%)",
-    ],
-    linkTexts: [
-      "Read more about volatility measures in economic data",
-      "Compare with international consumption patterns",
-    ],
-    recommendations: [
-      "Focus forecasting efforts on the top 5 categories (73% of total spending) for maximum impact",
-      "Investigate why Alcohol & Tobacco is growing so rapidly - policy implications?",
-      "Explore why Communication declined despite digital transformation - pricing or substitution effects?",
-    ],
-  },
-  dataQuality: {
-    intro:
-      "Data quality assessment is critical before any advanced analysis. We performed comprehensive validation checks across all 312 data points (12 categories A- 26 years) and surfaced issues that need attention before downstream modeling.",
-    missingDataSummary:
-      'A total of 127 cells contain "Data N/A" entries, representing 40.7% of the dataset. This missing rate raises concerns about systematic collection gaps during earlier periods.',
-    breakdown: [
-      "Recreation & Culture: 45 missing entries (34% missing) - most affected",
-      "Restaurants & Hotels: 21 missing entries (29% missing)",
-      "Miscellaneous Goods & Services: 28 missing entries (21.5% missing)",
-      "Clothing & Footwear: 12 missing entries (9.2% missing)",
-      "Communication: 4 missing entries (3.2% missing)",
-      "All other categories: Complete data",
-    ],
-    timeline: [
-      "1998-2001: 48% missing rate",
-      "2002-2004: 36% missing rate - critical coverage gap",
-      "2005-2012: 24% missing rate - requires validation",
-      "2013-2024: 12% missing rate",
-    ],
-    outliers: [
-      "18 negative values flagged (especially 2010-2014) requiring verification",
-      "6 suspicious spikes in Restaurants & Hotels hiding data entry errors",
-      "4 duplication blocks during the 2007 demonetization release",
-    ],
-    checks: [
-      "No duplicate year entries detected",
-      "All numerical values fall within plausible ranges (Rs 0.7T - Rs 24T)",
-      "3 categories report near-zero growth values; flagged for stability review",
-    ],
-    recommendations: [
-      "URGENT: investigate 2022-2024 data collection process - missing rate suggests systemic gaps",
-      "Contact source agency to verify negative outlier entries before modeling",
-      "For forecasting, consider interpolation or backfilling only after documenting assumptions",
-      "Flag exceptional inflation-driven 2024 values for manual review to preserve accuracy",
-      "Record all data quality decisions in the methodology log for traceability",
-    ],
-  },
-  forecast: {
-    intro:
-      "Using multiple forecasting models trained on 26 years of historical data, we project consumption patterns for 2025-2027. These forecasts incorporate trend analysis, seasonal decomposition, and ensemble weighting so every category starts from a realistic baseline.",
-    forecastSummary:
-      "Total private consumption is projected to grow at a 4.7% CAGR from Rs 24.7T in 2024 to Rs 28.5T in 2027 with the fastest growth in essential categories.",
-    categoryProjections: [
-      "Food: +5.4% annually, expected to reach Rs 1.92T by 2027 driven by urban demand",
-      "Housing: +4.9% annually, supported by ongoing construction stimulus",
-      "Health: +6.3% annually, reflecting an aging population and higher per-capita spend",
-      "Communication: +3.5% annually, but with tightening margins due to price competition",
-      "Alcohol & Tobacco: +5.9% annually, led by premiumization trends",
-      "Education: +5.1% annually, aligned with private tuition growth",
-    ],
-    validationNotes: [
-      "Primary model: 4.2% RMSE with seasonal adjustment",
-      "Secondary ensemble: 3.1% MAE across all categories",
-      "Trend + ARIMA blend was preferred to capture cyclic shifts",
-    ],
-    riskFactors: [
-      "Policy shocks (tax changes) could shift spending trajectories by Añ6%",
-      "Global commodity inflation may raise household costs faster than projected",
-      "Data quality gaps in 2022-2024 may force wider forecast bands",
-    ],
-    recommendations: [
-      "Use forecast ranges (Añ15%) rather than point estimates",
-      "Update models quarterly to capture fast-moving discretionary spending",
-      "Complement forecasts with scenario analyses (pessimistic, baseline, optimistic)",
-    ],
-  },
-  dataset: {
-    intro:
-      "We prepared an enhanced, analysis-ready version of your dataset that includes cleaned data, calculated fields, quality flags, and richer metadata so it can plug straight into business intelligence tools or statistical software.",
-    enhancements: [
-      "Calculated year-over-year (%) growth rates for all categories",
-      "Added category share of total spending (percentage columns)",
-      "Normalized 3-year and 5-year moving averages for trend smoothing",
-      "Generated data quality flags (Missing, Outlier, Negative)",
-      "Imputed missing values (linear interpolation) with provenance tracing",
-    ],
-    fileFormats: [
-      "Enhanced CSV (headers + calculated fields + quality flags)",
-      "Excel workbook with pivots, charts, and summary dashboards",
-      "JSON file capturing structured data for programmatic access",
-      "Data dictionary describing every field, unit, and flag",
-    ],
-    newColumns: [
-      "YoY_Growth_%: year-over-year percentage change for each category",
-      "Category_Share: proportion of total spending per category",
-      "MA_3y, MA_5y: 3- and 5-year moving averages (smoothed trend)",
-      "QA_Flag: flag column describing quality issues (Missing, Outlier, Negative)",
-      "Inflation_Adjusted: CPI-indexed spending (2024 constant prices)",
-    ],
-    qaChecks: [
-      "All data validated through automated integrity checks",
-      "Cross-tabulation (2022-2024) reconciliation ensures compatibility",
-      "Versioning metadata includes source, timestamp, and change notes",
-      "Format validation for downstream tools (Tableau, Python, Excel)",
-    ],
-    recommendations: [
-      "Start with the Enhanced CSV for quick analysis, then re-export to your BI tool",
-      "Review the data dictionary before sharing with partners to avoid misinterpretation",
-      "Use quality flags during forecasting to mask unreliable cells",
-      "Share this dataset with your analyst team to keep everyone working from the same baseline",
-    ],
-  },
-};
-
-const moreInsightsDetails: {
-  title: string;
-  description: string;
-  detailVariant: DetailVariant;
-  detailContent: DetailContentMap[DetailVariant];
-}[] = [
-  {
-    title: "Generate Summary Statistics Report",
-    description:
-      "Get mean, median, growth rates & volatility for all 12 categories",
-    detailVariant: "composition",
-    detailContent: detailContentByVariant.composition,
-  },
-  {
-    title: "Visualize 26-Year Trend Lines",
-    description: "See spending patterns across all categories from 1998-2024",
-    detailVariant: "trend",
-    detailContent: detailContentByVariant.trend,
-  },
-  {
-    title: "Compare Category Performance Ranking",
-    description: "Rank all 12 categories by total spending, growth & stability",
-    detailVariant: "ranking",
-    detailContent: detailContentByVariant.ranking,
-  },
-  {
-    title: "Identify & Flag Data Quality Issues",
-    description: "Detect missing values, outliers & anomalies in the dataset",
-    detailVariant: "dataQuality",
-    detailContent: detailContentByVariant.dataQuality,
-  },
-  {
-    title: "Project 2025-2027 Spending Patterns",
-    description: "AI forecasts using time-series analysis on 26 years of data",
-    detailVariant: "forecast",
-    detailContent: detailContentByVariant.forecast,
-  },
-  {
-    title: "Export Analysis-Ready Dataset",
-    description: "Download cleaned CSV with calculated fields & corrections",
-    detailVariant: "dataset",
-    detailContent: detailContentByVariant.dataset,
-  },
-];
 
 export type AIInsightsPanelProps = {
   onClose?: () => void;
+  datasetUrl?: string;
 };
 
-export default function AIInsightsPanel({ onClose }: AIInsightsPanelProps) {
+export default function AIInsightsPanel({ onClose, datasetUrl }: AIInsightsPanelProps) {
+  const [insights, setInsights] = useState<DetailContentMap | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!datasetUrl) return;
+
+    const fetchInsights = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/generate-insights", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ datasetUrl }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch insights");
+        }
+
+        const data = await response.json();
+        setInsights(data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to generate insights. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInsights();
+  }, [datasetUrl]);
+
+  const moreInsightsDetails: {
+    title: string;
+    description: string;
+    detailVariant: DetailVariant;
+    detailContent: DetailContentMap[DetailVariant] | undefined;
+  }[] = [
+    {
+      title: "Generate Summary Statistics Report",
+      description:
+        "Get mean, median, growth rates & volatility for all 12 categories",
+      detailVariant: "composition",
+      detailContent: insights?.composition,
+    },
+    {
+      title: "Visualize 26-Year Trend Lines",
+      description: "See spending patterns across all categories from 1998-2024",
+      detailVariant: "trend",
+      detailContent: insights?.trend,
+    },
+    {
+      title: "Compare Category Performance Ranking",
+      description: "Rank all 12 categories by total spending, growth & stability",
+      detailVariant: "ranking",
+      detailContent: insights?.ranking,
+    },
+    {
+      title: "Identify & Flag Data Quality Issues",
+      description: "Detect missing values, outliers & anomalies in the dataset",
+      detailVariant: "dataQuality",
+      detailContent: insights?.dataQuality,
+    },
+    {
+      title: "Project 2025-2027 Spending Patterns",
+      description: "AI forecasts using time-series analysis on 26 years of data",
+      detailVariant: "forecast",
+      detailContent: insights?.forecast,
+    },
+    {
+      title: "Export Analysis-Ready Dataset",
+      description: "Download cleaned CSV with calculated fields & corrections",
+      detailVariant: "dataset",
+      detailContent: insights?.dataset,
+    },
+  ];
+
   return (
     <div className="flex w-full flex-col gap-3">
       <article className="rounded-[14px] bg-white px-6 pb-6 pt-6">
@@ -295,72 +164,97 @@ export default function AIInsightsPanel({ onClose }: AIInsightsPanelProps) {
           </button>
         </header>
 
-        <div className="mt-3 flex flex-col gap-y-6">
-          <TitleCard />
+        {loading || !insights ? (
+          <div className="flex h-64 items-center justify-center">
+            {loading ? (
+              <div className="flex flex-col items-center gap-2">
+                <LoadingIcon className="h-8 w-8 animate-spin text-[#EA1952]" />
+                <p className="text-sm text-slate-500">Analyzing dataset...</p>
+              </div>
+            ) : error ? (
+              <p className="text-sm text-red-500">{error}</p>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <LoadingIcon className="h-8 w-8 animate-spin text-[#EA1952]" />
+                <p className="text-sm text-slate-500">Initializing...</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mt-3 flex flex-col gap-y-6">
+            <TitleCard />
 
-          <section className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <p
-                  className="text-base leading-6 font-semibold text-slate-900"
-                  style={{ fontFamily: "Montserrat" }}
-                >
-                  Key Insights
-                </p>
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p
+                    className="text-base leading-6 font-semibold text-slate-900"
+                    style={{ fontFamily: "Montserrat" }}
+                  >
+                    Key Insights
+                  </p>
+                  <span
+                    className="flex h-5 items-center justify-center rounded-full bg-slate-200 px-2 text-slate-700 text-[10px] font-semibold leading-3"
+                    style={{ fontFamily: "Arial" }}
+                  >
+                    {insights.keyInsights?.length || 0}
+                  </span>
+                </div>
                 <span
-                  className="flex h-5 items-center justify-center rounded-full bg-slate-200 px-2 text-slate-700 text-[10px] font-semibold leading-3"
-                  style={{ fontFamily: "Arial" }}
+                  className="text-xs font-normal leading-5 text-slate-500"
+                  style={{ fontFamily: '"Source Code Pro"' }}
                 >
-                  2
+                  AI-identified patterns
                 </span>
               </div>
-              <span
-                className="text-xs font-normal leading-5 text-slate-500"
-                style={{ fontFamily: '"Source Code Pro"' }}
-              >
-                AI-identified patterns
-              </span>
-            </div>
-            <KeyInsightsCard />
-          </section>
-
-          <section className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <p
-                  className="text-base leading-6 font-semibold text-slate-900"
-                  style={{ fontFamily: "Montserrat" }}
-                >
-                  More Insights
-                </p>
-                <span
-                  className="flex h-5 items-center justify-center rounded-full bg-slate-200 px-2 text-slate-700 text-[10px] font-semibold leading-3"
-                  style={{ fontFamily: "Arial" }}
-                >
-                  6
-                </span>
-              </div>
-              <span
-                className="text-[11px] text-slate-500"
-                style={{ fontFamily: '"Source Code Pro"' }}
-              >
-                Actionable recommendations
-              </span>
-            </div>
-            <div className="space-y-2">
-              {moreInsightsDetails.map((insight) => (
-                <SuggestedActionCard
-                  key={insight.title}
-                  showDetailOnClick
+              {insights.keyInsights?.map((insight, index) => (
+                <KeyInsightsCard
+                  key={index}
                   title={insight.title}
-                  description={insight.description}
-                  detailVariant={insight.detailVariant}
-                  detailContent={insight.detailContent}
+                  content={insight.content}
+                  confidence={insight.confidence}
                 />
               ))}
-            </div>
-          </section>
-        </div>
+            </section>
+
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p
+                    className="text-base leading-6 font-semibold text-slate-900"
+                    style={{ fontFamily: "Montserrat" }}
+                  >
+                    More Insights
+                  </p>
+                  <span
+                    className="flex h-5 items-center justify-center rounded-full bg-slate-200 px-2 text-slate-700 text-[10px] font-semibold leading-3"
+                    style={{ fontFamily: "Arial" }}
+                  >
+                    {moreInsightsDetails.length}
+                  </span>
+                </div>
+                <span
+                  className="text-[11px] text-slate-500"
+                  style={{ fontFamily: '"Source Code Pro"' }}
+                >
+                  Actionable recommendations
+                </span>
+              </div>
+              <div className="space-y-2">
+                {moreInsightsDetails.map((insight) => (
+                  <SuggestedActionCard
+                    key={insight.title}
+                    showDetailOnClick
+                    title={insight.title}
+                    description={insight.description}
+                    detailVariant={insight.detailVariant}
+                    detailContent={insight.detailContent!}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
 
         <div className="mt-6">
           <InsightsDisclaimerCard />

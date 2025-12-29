@@ -49,7 +49,14 @@ export type DatasetDetailContent = {
   recommendations: string[];
 };
 
+export type KeyInsightContent = {
+  title: string;
+  content: string;
+  confidence: string;
+};
+
 export type DetailContentMap = {
+  keyInsights: KeyInsightContent[];
   composition: CompositionDetailContent;
   trend: TrendDetailContent;
   ranking: RankingDetailContent;

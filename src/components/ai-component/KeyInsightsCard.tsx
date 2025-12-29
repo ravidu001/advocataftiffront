@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+
 import KeyInsightsIcon from "./KeyInsightsIcon";
 
 const ConfidenceIcon = ({ active }: { active: boolean }) => {
@@ -68,7 +69,17 @@ const HelpfulIcon = ({ active }: { active: boolean }) => {
 
 type ThumbFeedback = "up" | "down" | null;
 
-export default function KeyInsightsCard() {
+interface KeyInsightsCardProps {
+  title?: string;
+  content?: string;
+  confidence?: string;
+}
+
+export default function KeyInsightsCard({
+  title = "Significant Growth in Food Consumption",
+  content = "Food spending rose from Rs 5.38T (2022) to Rs 6.13T (2024), driven by 9.2% growth in 2023 and 4.4% in 2024.",
+  confidence = "High (85%)",
+}: KeyInsightsCardProps) {
   const [thumbFeedback, setThumbFeedback] = useState<ThumbFeedback>(null);
 
   return (
@@ -83,15 +94,14 @@ export default function KeyInsightsCard() {
             className="text-sm font-semibold leading-5 text-slate-900"
             style={{ fontFamily: "Montserrat" }}
           >
-            Significant Growth in Food Consumption
+            {title}
           </h3>
 
           <p
             className="text-xs leading-5 text-slate-600 font-normal"
             style={{ fontFamily: '"Source Code Pro"' }}
           >
-            Food spending rose from Rs 5.38T (2022) to Rs 6.13T (2024), driven
-            by 9.2% growth in 2023 and 4.4% in 2024.
+            {content}
           </p>
         </div>
 
@@ -105,7 +115,7 @@ export default function KeyInsightsCard() {
               style={{ fontFamily: '"Source Code Pro"' }}
             >
               <span className="text-slate-500">Confidence:</span>
-              <span className="text-slate-600">High (85%)</span>
+              <span className="text-slate-600">{confidence}</span>
             </div>
 
             <div

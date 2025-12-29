@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brandBlack: #000000;
+  --color-brandWhite: #ffffff;
+}
+
 /* ---------------------------------------------------------
    If you use next/font, you do NOT need @import of Google fonts here.
    next/font will create CSS variables for the families.

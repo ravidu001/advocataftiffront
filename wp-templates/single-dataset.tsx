@@ -1,21 +1,22 @@
-import React, { useState, useRef, useEffect } from "react";
-import { gql } from "@apollo/client";
-import type { GetStaticPropsContext } from "next";
-import HeroWhite from "@/src/components/HeroBlocks/HeroWhite";
-import AIButton from "@/src/components/ai-component/AIButton";
-import AIInsightsPanel from "@/src/components/ai-component/AIInsightsPanel";
-import { WysiwygInner } from "@/src/components/WysiwygInner";
-import SecondaryButton from "@/src/components/Buttons/SecondaryBtn";
-import CardType6 from "@/src/components/Cards/CardType6";
-import SEO from "@/src/components/SEO";
+import { InnerPageTitle, PageSubTitle } from "@/src/components/Typography";
+import React, { useEffect, useRef, useState } from "react";
 import {
   downloadCsvFile,
   downloadExcelFromCsv,
   downloadPdfFromCsv,
 } from "@/src/lib/downloadUtils";
-import { InnerPageTitle, PageSubTitle } from "@/src/components/Typography";
+
+import AIButton from "@/src/components/ai-component/AIButton";
+import AIInsightsPanel from "@/src/components/ai-component/AIInsightsPanel";
+import CardType6 from "@/src/components/Cards/CardType6";
 import CsvTable from "@/src/components/CsvTable";
+import type { GetStaticPropsContext } from "next";
+import HeroWhite from "@/src/components/HeroBlocks/HeroWhite";
 import RelatedDatasets from "@/src/components/RelatedDatasets";
+import SEO from "@/src/components/SEO";
+import SecondaryButton from "@/src/components/Buttons/SecondaryBtn";
+import { WysiwygInner } from "@/src/components/WysiwygInner";
+import { gql } from "@apollo/client";
 
 /** Single dataset + a small related list */
 export const SINGLE_DATASET_QUERY = gql`
@@ -516,7 +517,7 @@ const DatasetInnerPage: React.FC<SingleDatasetProps> = ({ data }) => {
           aria-modal="true"
           onClick={(e) => e.stopPropagation()}
         >
-          <AIInsightsPanel onClose={closeInsightsPanel} />
+          <AIInsightsPanel onClose={closeInsightsPanel} datasetUrl={downloadUrl} />
         </div>
       )}
     </div>
